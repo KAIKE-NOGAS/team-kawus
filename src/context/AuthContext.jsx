@@ -1,20 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { auth } from '../config/firebase'
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged, 
-  updateProfile 
-} from 'firebase/auth'
+import { auth, db } from '../config/firebase'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'firebase/auth'
+import { doc, setDoc } from 'firebase/firestore'
 
 /**
  * ============================================
  * AUTH CONTEXT — TEAM KAWUS (FIREBASE)
  * ============================================
- * Usa o Firebase Authentication.
- * Transforma o "Username" em um e-mail falso
- * (@teamkawus.com) para manter a tela simples.
  */
 
 const AuthContext = createContext(null)
@@ -23,7 +15,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Observa mudanças de login/logout no Firebase em tempo real
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -36,33 +27,38 @@ export function AuthProvider({ children }) {
     return () => unsubscribe()
   }, [])
 
-  /** Cria e-mail fantasma para o Firebase */
   const formatEmail = (username) => `${username.trim().toLowerCase().replace(/[^a-z0-9]/g, '')}@teamkawus.com`
 
-  /** Cadastro de novo usuário */
   const register = async (username, password) => {
     if (username.trim().length < 3) return { success: false, error: 'Nome deve ter pelo menos 3 caracteres.' }
-    if (password.length < 6) return { success: false, error: 'Senha deve ter pelo menos 6 caracteres (Regra do sistema).' }
+    if (password.length < 6) return { success: false, error: 'Senha deve ter pelo menos 6 caracteres.' }
 
     try {
       const email = formatEmail(username)
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       
-      // Atualiza o perfil do usuário recém criado com o nome real dele
       await updateProfile(userCredential.user, { displayName: username.trim() })
+      
+      // Salva no banco de dados Firestore para o Painel Admin
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        username: username.trim(),
+        email: email,
+        role: username.trim().toUpperCase() === 'KAWUS' ? 'admin' : 'user',
+        createdAt: new Date().toISOString()
+      })
       
       setUser({ id: userCredential.user.uid, username: username.trim() })
       return { success: true }
     } catch (error) {
       console.error(error)
+      // Tratamento amigável para usuário duplicado
       if (error.code === 'auth/email-already-in-use') {
-        return { success: false, error: 'Este nome de usuário já está em uso.' }
+        return { success: false, error: 'Este nome de usuário já está em uso! Escolha outro.' }
       }
       return { success: false, error: `Falha no Firebase: ${error.code}` }
     }
   }
 
-  /** Login do usuário */
   const login = async (username, password) => {
     try {
       const email = formatEmail(username)
@@ -75,7 +71,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  /** Logout */
   const logout = async () => {
     try {
       await signOut(auth)

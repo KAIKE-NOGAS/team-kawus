@@ -21,7 +21,23 @@ export default function LobbyList() {
   const { lobbies, joinLobby, leaveLobby, closeLobby } = useLobbies()
   const [showCreate, setShowCreate] = useState(false)
 
-  const openLobbies = lobbies.filter(l => l.status === 'open')
+  const openLobbies = lobbies.filter(l => {
+    if (l.status !== 'open') return false
+
+    // Regra temporal: Se passar 1 dia completo após a data do jogo, oculta o lobby
+    if (l.date) {
+      const [year, month, day] = l.date.split('-')
+      // Seta a data do jogo para às 23:59:59 daquele dia
+      const lobbyDate = new Date(year, month - 1, day, 23, 59, 59)
+      const now = new Date()
+      const umDiaEmMs = 24 * 60 * 60 * 1000
+
+      if (now.getTime() > lobbyDate.getTime() + umDiaEmMs) {
+        return false // Expirou
+      }
+    }
+    return true
+  })
 
   /** Formata data para exibição */
   const formatDate = (dateStr) => {

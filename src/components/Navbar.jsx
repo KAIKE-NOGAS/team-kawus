@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import AuthModal from './AuthModal'
 import {
   Menu, X, Gamepad2, LogIn, LogOut, User,
-  Swords, ShoppingBag, Home
+  Swords, ShoppingBag, Home, Shield
 } from 'lucide-react'
 
 /**
@@ -27,6 +27,11 @@ export default function Navbar({ activeTab, setActiveTab }) {
     { id: 'lobbies', label: 'Lobbies',  icon: Swords },
     { id: 'deals',   label: 'Ofertas',  icon: ShoppingBag },
   ]
+
+  // Libera a aba Admin apenas para o usuário KAWUS
+  if (user?.username?.toUpperCase() === 'KAWUS') {
+    navItems.push({ id: 'admin', label: 'Painel', icon: Shield })
+  }
 
   const handleNav = (id) => {
     setActiveTab(id)
