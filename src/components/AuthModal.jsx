@@ -20,25 +20,23 @@ export default function AuthModal({ isOpen, onClose }) {
 
   if (!isOpen) return null
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     const result = isLogin
-      ? login(username, password)
-      : register(username, password)
+      ? await login(username, password)
+      : await register(username, password)
 
-    setTimeout(() => {
-      setLoading(false)
-      if (result.success) {
-        setUsername('')
-        setPassword('')
-        onClose()
-      } else {
-        setError(result.error)
-      }
-    }, 300)
+    setLoading(false)
+    if (result.success) {
+      setUsername('')
+      setPassword('')
+      onClose()
+    } else {
+      setError(result.error)
+    }
   }
 
   const toggleMode = () => {
