@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
       if (error.code === 'auth/email-already-in-use') {
         return { success: false, error: 'Este nome de usuário já está em uso.' }
       }
-      return { success: false, error: 'Erro ao cadastrar. Tente novamente.' }
+      return { success: false, error: `Falha no Firebase: ${error.code}` }
     }
   }
 
