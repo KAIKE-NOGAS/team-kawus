@@ -7,16 +7,16 @@ import { getFirestore } from 'firebase/firestore'
  * FIREBASE CONFIGURATION
  * ============================================
  * Conecta o app ao banco de dados do Google.
- * As chaves estão seguras no arquivo .env.local
+ * Chaves injetadas diretamente para facilitar o deploy na Vercel.
  */
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyBlj2PZ3eT9lcZqUFXgovwlk92tF2XoLo8",
+  authDomain: "team-kawus.firebaseapp.com",
+  projectId: "team-kawus",
+  storageBucket: "team-kawus.firebasestorage.app",
+  messagingSenderId: "723238868683",
+  appId: "1:723238868683:web:b9aaae48e5cbf184e5ed4e"
 }
 
 // Inicializa o Firebase
